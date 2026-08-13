@@ -1,14 +1,18 @@
 version: '3.8'
 services:
   gsc-mcp:
-    image: python:3.11-slim
-    working_dir: /app
-    command: bash -c "pip install -q uv && uv sync && GSC_WRITE_ACCESS=true uv run python -m gsc_mcp.server"
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /app/credentials.json
-    volumes:
-      - ./credentials.json:/app/credentials.json:ro
-      - ./:/app
+      GOOGLE_APPLICATION_CREDENTIALS_JSON: ${GOOGLE_APPLICATION_CREDENTIALS_JSON}
+      GSC_WRITE_ACCESS: 'true'
     ports:
       - "3000:3000"
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/", "-m", "5"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
