@@ -11,25 +11,15 @@ COPY . .
 # Install dependencies
 RUN uv sync
 
+# Copy and make entrypoint script executable
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Set environment variable for write access
 ENV GSC_WRITE_ACCESS=true
-
-# Create credentials file from environment variable at runtime
-RUN mkdir -p /root/.config/gsc-mcp
 
 # Expose port for MCP server
 EXPOSE 3000
 
-# Entry script to write credentials and start the server
-COPY <<EOF /entrypoint.sh
-#!/bin/bash
-if [ -n "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
-  echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > /root/.config/gsc-mcp/credentials.json
-  export GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gsc-mcp/credentials.json
-fi
-exec uv run python -m gsc_mcp.server
-EOF
-
-RUN chmod +x /entrypoint.sh
-
+# Use entrypoint script to handle credentials initialization
 ENTRYPOINT ["/entrypoint.sh"]
