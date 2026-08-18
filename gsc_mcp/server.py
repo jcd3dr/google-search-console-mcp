@@ -449,4 +449,18 @@ if _is_write_enabled():
 
 
 if __name__ == "__main__":
-    mcp.run()
+    # Local/CLI usage (e.g. Claude Code over stdio) keeps working unchanged:
+    #   uv run python -m gsc_mcp.server
+    # Remote deployments default to Streamable HTTP behind the DadeCore
+    # embedded owner-gated OAuth 2.1 authorization server (see mcp_auth.py).
+    # Set MCP_TRANSPORT=stdio to force local stdio mode.
+    if os.environ.get("MCP_TRANSPORT", "http").lower() == "stdio":
+        mcp.run()
+    else:
+        import uvicorn
+
+        from gsc_mcp.mcp_auth import build_app
+
+        app = build_app(mcp)
+        port = int(os.environ.get("PORT", "3000"))
+        uvicorn.run(app, host="0.0.0.0", port=port)
