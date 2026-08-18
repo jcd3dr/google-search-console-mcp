@@ -18,10 +18,13 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "fastmcp>=2.0",
+    "fastmcp>=2.11",
     "google-api-python-client>=2.80",
     "google-auth-oauthlib>=1.0",
     "google-auth>=2.20",
+    "cryptography>=42.0",
+    "uvicorn>=0.30",
+    "starlette>=0.37",
 ]
 
 [project.urls]
